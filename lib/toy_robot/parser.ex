@@ -20,7 +20,6 @@ defmodule ToyRobot.Parser do
     %{cmd: cmd, x: x, y: y, face: face}
   end
 
-
   def split_cmd_txt(cmd_txt) when is_binary(cmd_txt) do
     list = cmd_txt |> String.split()
     cmd  = list |> hd()
@@ -43,9 +42,10 @@ defmodule ToyRobot.Parser do
   end
 
   def validate_args(cmd, args) when cmd in @arg_cmds and is_list(args) do
-    if valid_arg_values(args) do
-      [_cmd, [_x, _y, _face]] = [cmd, args]
-    else
+    case valid_arg_values(args) do
+      true ->
+        [_cmd, [_x, _y, _face]] = [cmd, args]
+    false ->
       [nil, nil]
     end
   end
