@@ -4,6 +4,10 @@ defmodule ToyRobot.Parser do
   @dirs ["NORTH", "EAST", "SOUTH", "WEST"]
   @arg_cmds ["PLACE"]
 
+  def cmds() do
+    @cmds
+  end
+
   def parse_command(cmd_txt) when is_binary(cmd_txt) do
       cmd_txt
       |> split_cmd_txt()
@@ -21,9 +25,9 @@ defmodule ToyRobot.Parser do
   end
 
   def split_cmd_txt(cmd_txt) when is_binary(cmd_txt) do
-    list = cmd_txt |> String.split()
-    cmd  = list |> hd()
-    args = list |> List.last() |> String.split(",")
+    parts = cmd_txt |> String.split()
+    cmd  = parts |> hd()
+    args = parts |> List.last() |> String.split(",")
     [cmd, args]
   end
 
