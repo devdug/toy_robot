@@ -1,45 +1,46 @@
 defmodule ToyRobot.Runner do
   use Agent
 
-  alias ToyRobot.Server
-  alias ToyRobot.Parser
-  alias ToyRobot.Logic
+  alias ToyRobot.Api
 
-  @file_name "cmds.txt"
+  @file_name "empty.txt"
 
   def run() do
+
+    {:ok, server_pid} = Api.start_server()
     {:ok, agent_pid} = Agent.start_link(fn -> [nil, nil] end, name: __MODULE__)
-
-    {:ok, server_pid} = Server.start_link()
-
-    Process.sleep(500)
     loop(server_pid, agent_pid)
   end
 
   def loop(server_pid, agent_pid) do
-    #  single load
     load_file(@file_name, agent_pid)
-
-    # loop through list
-      cmd = walk_list(agent_pid)
-      stop(cmd, server_pid, agent_pid)
-
-      if is_binary(cmd) do
-        Parser.parse_command(cmd)
-        |> process_cmd(server_pid)
-      end
-
+    cmd = walk_list(agent_pid)
+    stop(cmd, server_pid, agent_pid)
+    Api.run_cmd(cmd, server_pid)
     loop(server_pid, agent_pid)
   end
 
-  def stop("q", server_pid, agent_pid) do
-    Agent.stop(agent_pid)
-    Process.exit(server_pid, :normal)
-    exit(:normal)
+  def load_file(name, agent_pid) do
+    # store the loaded flag and the current list of cmds
+    [list, flag] = get_agent_state(agent_pid)
+    case flag == :loaded do
+              # skip if alreay loaded
+      true -> list
+              # actually loads the file
+      _    -> list = Api.load_file(name) |> quit_if_empty()
+              # save the loaded flag and the list
+              set_agent_state(agent_pid, [list, :loaded])
+    end
   end
 
-  def stop(_,_,_) do
+  def quit_if_empty([""] = _list) do
+    ["q"]
   end
+
+  def quit_if_empty(list) when is_list(list) do
+    list
+  end
+
 
   def walk_list(agent_pid) do
     [cmds, flag] = get_agent_state(agent_pid)
@@ -50,38 +51,8 @@ defmodule ToyRobot.Runner do
         set_agent_state(agent_pid, [cmds, flag])
         cmd
       end
-
+    IO.puts "processing #{cmd}"
     cmd
-  end
-
-  def process_cmd(map, server_pid) do
-    IO.puts("processing cmd: #{inspect(map)}")
-
-    if (map.cmd in Parser.cmds()) do
-      cond do
-        map.cmd == "MOVE"   -> Server.move(server_pid)
-        map.cmd == "LEFT"   -> Server.left(server_pid)
-        map.cmd == "RIGHT"  -> Server.right(server_pid)
-        map.cmd == "PLACE"  -> Server.place(server_pid, [map.x, map.y, map.face])
-        map.cmd == "REPORT" -> cur_state = get_server_state(server_pid)
-                               Logic.report(cur_state)
-
-        true -> IO.puts("invalid commad: #{map.cmd}")
-      end
-    end
-  end
-
-  def get_server_state(server_pid) do
-    Server.current_state(server_pid)
-  end
-
-  def load_file(name, agent_pid) do
-    [list, flag] = get_agent_state(agent_pid)
-    case flag == :loaded do
-      true -> list
-      _    -> list = Logic.load_file(name)
-              set_agent_state(agent_pid, [list, :loaded])
-    end
   end
 
   def set_agent_state(agent_pid, [list, flag]) do
@@ -92,8 +63,13 @@ defmodule ToyRobot.Runner do
     Agent.get(agent_pid, &(&1))
   end
 
-  def get_state(server_pid) do
-    Server.current_state(server_pid)
+  def stop("q", server_pid, agent_pid) do
+    Agent.stop(agent_pid)
+    Api.stop_server(server_pid)
+    exit(:normal)
+  end
+
+  def stop(_,_,_) do
   end
 
 end
