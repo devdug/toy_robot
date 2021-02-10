@@ -16,5 +16,3 @@ defmodule ToyRobot.Loader do
   end
 
 end
-
-# def func(%{x: x, y: y} = map)

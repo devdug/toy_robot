@@ -2,8 +2,9 @@ defmodule ToyRobot.Cli do
   alias ToyRobot.Api
 
   def run() do
-    {:ok, server_pid} = Api.start_server()
-    loop(server_pid)
+    IO.inspect System.argv
+    # {:ok, server_pid} = Api.start_server()
+    # loop(server_pid)
   end
 
   def loop(server_pid) do
