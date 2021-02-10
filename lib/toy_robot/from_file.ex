@@ -1,9 +1,9 @@
-defmodule ToyRobot.Runner do
+defmodule ToyRobot.FromFile do
   use Agent
 
   alias ToyRobot.Api
 
-  @file_name "empty.txt"
+  @file_name "cmds.txt"
 
   def run() do
 
