@@ -1,28 +1,34 @@
-defmodule ToyRobot.Cli do
-  alias ToyRobot.Api
+defmodule ToyRobot.CLI do
+  @moduledoc """
+  main(argv) Main entry point which allows application to be run from the command line
+  """
+  alias ToyRobot.Repl
+  alias ToyRobot.FromFile
 
-  def run() do
-    IO.inspect System.argv
-    # {:ok, server_pid} = Api.start_server()
-    # loop(server_pid)
+  def main(argv) do
+    {parsed, _args, _invalid} = OptionParser.parse(argv,
+      switches: [interactive: nil, from_file: :string],
+      aliases: [i: :interactive, f: :from_file])
+
+    handle_parsed(parsed)
   end
 
-  def loop(server_pid) do
-    cmd_txt = IO.gets("command > ") |> String.trim()
+  def handle_parsed([from_file: path]) do
+    case File.exists?(path) do
+      true -> FromFile.run(path)
 
-    if cmd_txt == "q" do
-      Api.stop_server(server_pid)
-      exit(:normal)
+      _    ->  IO.puts "File not found: #{path}"
     end
 
-    if Api.valid_cmd?(cmd_txt) do
-      # run the command
-      Api.run_cmd(cmd_txt, server_pid)
-    else
-      IO.puts "invalid command: #{cmd_txt}"
-    end
+  end
 
-    loop(server_pid)
+  def handle_parsed([interactive: true]) do
+    Repl.run()
+  end
+
+  def handle_parsed(_) do
+    # show help
+    IO.puts "Invalid arguments.."
   end
 
 end
