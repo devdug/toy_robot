@@ -2,18 +2,19 @@ defmodule ToyRobot.FromFile do
   use Agent
 
   alias ToyRobot.Api
+  alias ToyRobot.Loader
 
-  @file_name "cmds.txt"
-
-  def run() do
-
+  def run(path) do
     {:ok, server_pid} = Api.start_server()
     {:ok, agent_pid} = Agent.start_link(fn -> [nil, nil] end, name: __MODULE__)
+
+    load_file(path, agent_pid)
+
     loop(server_pid, agent_pid)
   end
 
   def loop(server_pid, agent_pid) do
-    load_file(@file_name, agent_pid)
+    # load_file(@file_name, agent_pid)
     cmd = walk_list(agent_pid)
     stop(cmd, server_pid, agent_pid)
     Api.run_cmd(cmd, server_pid)
@@ -27,10 +28,14 @@ defmodule ToyRobot.FromFile do
               # skip if alreay loaded
       true -> list
               # actually loads the file
-      _    -> list = Api.load_file(name) |> quit_if_empty()
+      _    -> list = Loader.load_file(name) |> quit_if_empty()
               # save the loaded flag and the list
               set_agent_state(agent_pid, [list, :loaded])
     end
+  end
+
+  def load_file(name) do
+    Loader.load_file(name)
   end
 
   def quit_if_empty([""] = _list) do
@@ -44,7 +49,7 @@ defmodule ToyRobot.FromFile do
 
   def walk_list(agent_pid) do
     [cmds, flag] = get_agent_state(agent_pid)
-
+    IO.inspect cmds
     cmd =
       if flag == :loaded and is_list(cmds) do
         {cmd, cmds} = List.pop_at(cmds, 0)
