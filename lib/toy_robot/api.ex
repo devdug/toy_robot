@@ -1,15 +1,23 @@
 defmodule ToyRobot.Api do
   @moduledoc """
-  ## `ToyRobot.Api`.
-
-  The Api module contains the higher level functions
+  The Api module contains the common higher level functions
   that are called from the Command Line `ToyRobot.Cli`
   and File Driven `ToyRobot.FromFile` interfaces.
 
-  ### Aliased Modules
-  `ToyRobot.Server`
-  `ToyRobot.Parser`
-  `ToyRobot.Logic`
+  This includes functions to:
+
+  - start and stop the `ToyRobot.Server`
+  - run commands
+  - get server state
+  - load a command file
+  - and check if command text is vlaid
+
+  Aliased Modules
+      ToyRobot.Server
+      ToyRobot.Parser
+      ToyRobot.Logic
+
+
   """
 
   alias ToyRobot.Server
@@ -17,9 +25,10 @@ defmodule ToyRobot.Api do
   alias ToyRobot.Logic
 
   @doc """
-  ## start_server/0.
   Starts a supervised gen_server to manage state
   for the current position of the toy robot.
+
+  See: `ToyRobot.Server`
 
   ## Examples
 
@@ -27,19 +36,20 @@ defmodule ToyRobot.Api do
       {:ok, server_pid}
 
   """
-  def start_server do
-    {:ok, server_pid} = Server.start_link()
-    {:ok, server_pid}
+  def start_server() do
+    Server.start_link()
   end
 
   @doc """
-  ## run_cmd/2.
-  Parses a command via `ToyRobot.Parser/1` which converts
-  the command to a map in the form of `%{cmd: cmd, x: x, y: y, face: face}`
-  then calls the matching command in `ToyRobot.Server` to update the
-  current state of the toy robot.
+  Parses a command via `ToyRobot.Parser.parse_command/1` which converts the
+  command to a map in the form of `%{cmd: cmd, x: x, y: y, face: face}`
+  then pipes to process_cmd/1.
 
-  Invalid commands will be ignored.
+  Valid but un-runnable command, such as a "MOVE" that would cause the ToyRobot to fall off the table will be ignored.
+
+  ## Aguments
+  cmd:        String
+  Server_pid: PID (Process ID)
 
   ## Examples
 
@@ -57,6 +67,13 @@ defmodule ToyRobot.Api do
     end
   end
 
+  @doc """
+  Takes a `ToyRobot.Logic` Struct and the `ToyRobot.Server` PID and delegates
+  valid commands to command calls in the ToyRobot.Server.
+
+  Invalid commands will print: "invalid commad command_name".
+
+  """
   def process_cmd(map, server_pid) do
     # IO.puts("processing cmd: #{inspect(map)}")
 
@@ -74,18 +91,24 @@ defmodule ToyRobot.Api do
     end
   end
 
+  @doc """
+  Gets the current state of the ToyRobot by delegating to `ToyRobot.Server.current_state(server_pid)`.
+  Returns a ToyRobot.Logic struct in the form of: `%ToyRobot.Logic{face: :n, x: 0, y: 0}`
+  """
   def get_server_state(server_pid) do
     Server.current_state(server_pid)
   end
 
+  @doc """
+  Stops the server by delegating to `ToyRobot.Server.current_state(server_pid)`.
+  """
   def stop_server(server_pid) do
     Process.exit(server_pid, :normal)
   end
 
-  def load_file(file_name) do
-    Logic.load_file(file_name)
-  end
-
+  @doc """
+  Returns true if `command text (cmd_txt)` is valid, returns false otherwise.
+  """
   def valid_cmd?(cmd_txt) do
     if cmd_txt != "" do
       [cmd, _args] =
