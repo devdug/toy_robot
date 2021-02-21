@@ -24,6 +24,7 @@ rules for state changes.
 
   @doc """
   Sync call to the server that matches on :get_state
+
   Returns current state of the toyrobot as a `%ToyRobot.Logic{x: x, y: y, face: face}` struct.
   """
   def current_state(server_pid) do
@@ -38,10 +39,11 @@ rules for state changes.
   end
 
   @doc """
+  Common code to handle each of the `["MOVE", "LEFT", "RIGHT"]` commands.
+
   - Gets current state from `ToyRobot.Server.current_state/1`.
   - Calls `ToyRobot.Logic` to get an updated value for the state then
   delegates acutal update to `ToyRobot.Server.update_state/2`
-  - Common code to handle each of the `["MOVE", "LEFT", "RIGHT"]` commands.
   """
   def do_command(cmd, server_pid) do
     state = current_state(server_pid)
@@ -52,6 +54,7 @@ rules for state changes.
 
   @doc """
   Specific handler for the `"PLACE y,y,facing"` command.
+
   Deligates to `ToyRobot.Logic.place/3` and performs a sync
   call to `ToyRobot.Server.update_state/2`
   """
@@ -62,8 +65,9 @@ rules for state changes.
   end
 
   @doc """
-  Gets current state from `ToyRobot.Server.current_state/1`. Then deligates
-  actual reporting to `ToyRobot.Logic.report/1` with the current state.
+  Gets current state from `ToyRobot.Server.current_state/1`.
+
+  Then deligates actual reporting to `ToyRobot.Logic.report/1` with the current state.
   """
   def report(server_pid) do
     state = current_state(server_pid)
@@ -72,6 +76,7 @@ rules for state changes.
 
   @doc """
   Moves the ToyRobot 1 space in the direction it is currently facing.
+
   **see:** `ToyRobot.Server.do_command/2`
   """
   def move(server_pid) do
@@ -80,6 +85,7 @@ rules for state changes.
 
   @doc """
   Turns the ToyRobot 90 degrees in a **counter clockwise** direction to **Face** in a new direction.
+
   **see:** `ToyRobot.Server.do_command/2`
   """
   def left(server_pid) do
@@ -88,22 +94,19 @@ rules for state changes.
 
   @doc """
   Turns the ToyRobot 90 degrees in a **clockwise** direction to **Face** in a new direction.
+
   **see:** `ToyRobot.Server.do_command/2`
   """
   def right(server_pid) do
     do_command(:right, server_pid)
   end
 
-  @doc """
-  `handle_call/3` function matching `:get_state` sync call to get the current state.
-  """
+  @doc false
   def handle_call(:get_state, _from, state) do
     {:reply, state, state}
   end
 
-  @doc """
-  `handle_call/3` function matching `:update` sync call to update the current state.
-  """
+  @doc false
   def handle_call({:update, new_state}, _from, state) do
     {:reply, state, new_state}
   end

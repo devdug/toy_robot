@@ -41,8 +41,9 @@ defmodule ToyRobot.Api do
   end
 
   @doc """
-  Parses a command via `ToyRobot.Parser.parse_command/1` which converts the
-  command to a map in the form of `%{cmd: cmd, x: x, y: y, face: face}`
+  Parses a command via `ToyRobot.Parser.parse_command/1`
+
+  Which converts the command to a map in the form of `%{cmd: cmd, x: x, y: y, face: face}`
   then pipes to process_cmd/1.
 
   Valid but un-runnable command, such as a "MOVE" that would cause the ToyRobot to fall off the table will be ignored.
@@ -68,6 +69,8 @@ defmodule ToyRobot.Api do
   end
 
   @doc """
+  Processes commands to update servers state.
+
   Takes a `ToyRobot.Logic` Struct and the `ToyRobot.Server` PID and delegates
   valid commands to command calls in the ToyRobot.Server.
 
@@ -92,7 +95,9 @@ defmodule ToyRobot.Api do
   end
 
   @doc """
-  Gets the current state of the ToyRobot by delegating to `ToyRobot.Server.current_state(server_pid)`.
+  Gets the current state of the ToyRobot.
+
+  Delegates to `ToyRobot.Server.current_state(server_pid)`.
   Returns a ToyRobot.Logic struct in the form of: `%ToyRobot.Logic{face: :n, x: 0, y: 0}`
   """
   def get_server_state(server_pid) do
