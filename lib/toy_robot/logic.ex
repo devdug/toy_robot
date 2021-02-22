@@ -82,8 +82,10 @@ This first example is of a command without a prior PLACE command.
     > REPORT
     > Output: Robot is at 3, 3 and facing NORTH
 ```
-
 """
+
+  @type data() :: %ToyRobot.Logic{}
+
   # Use keyword lists to determine direction changes
   # This eliminates testing the directions such as: if face == "EAST" do "SOUTH" for a RIGHT command.
   # Instead @right[:e] does the same thing as it returns :s.
@@ -254,6 +256,7 @@ This first example is of a command without a prior PLACE command.
   end
 
   @doc false
+  # Adjusts x,y values for a move based on the facing direction
   def move_facing(data) do
     cond do
       data.face == :n ->

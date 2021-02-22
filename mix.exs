@@ -8,7 +8,15 @@ defmodule ToyRobot.MixProject do
       elixir: "~> 1.11",
       escript: [main_module: ToyRobot.CLI],
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+
+      #docs
+      name: "ToyRobot",
+      source_url: "https://github.com/devdug/toy_robot.git",
+      docs: [
+        main: "ToyRobot",
+        extras: ["ToyRobot.md", "Approach.md","README.md"]
+      ]
     ]
   end
 
@@ -24,7 +32,6 @@ defmodule ToyRobot.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.23.0", only: [:dev], runtime: false}
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
   end
 end
