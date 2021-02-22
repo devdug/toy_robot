@@ -110,4 +110,4 @@ Output: Robot is at 3, 3 and facing NORTH
 >
 ```
 ----------------
-Originial idead by Jon Eaves: [https://joneaves.wordpress.com/2014/07/21/toy-robot-coding-test/](https://joneaves.wordpress.com/2014/07/21/toy-robot-coding-test/)
+Originial idea by Jon Eaves: [https://joneaves.wordpress.com/2014/07/21/toy-robot-coding-test/](https://joneaves.wordpress.com/2014/07/21/toy-robot-coding-test/)
