@@ -18,11 +18,11 @@ Description:
 **Create an application that can read in commands of the following form:**
 
 ```elixir
-PLACE X,Y,F
-MOVE
-LEFT
-RIGHT
-REPORT
+    PLACE X,Y,F
+    MOVE
+    LEFT
+    RIGHT
+    REPORT
 ```
 
 ## PLACE
